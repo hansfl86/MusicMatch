@@ -1,44 +1,81 @@
-import os
+import time
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-from pydantic import BaseModel, Field
-from typing import List
+from pydantic import BaseModel
+from typing import List, Dict
 
 app = FastAPI()
 
-# Datamodell för att validera inkommande poäng
-class ScoreItem(BaseModel):
-    name: str = Field(..., max_length=15)
-    time: float
+# Vår musikaliska databas (Vänster ord -> Rätt höger ord)
+MUSIC_PAIRS = {
+    "Beatles": "Yesterday",
+    "ABBA": "Mamma Mia",
+    "Avicii": "Levels",
+    "Queen": "Bohemian Rhapsody",
+    "Zara Larsson": "Lush Life"
+}
 
-# Temporär databas i serverns minne
+# Håller koll på aktiva spelsessioner baserat på spelarnamn (för tidsmätning)
+active_sessions: Dict[str, float] = {}
+
+# Databas i minnet för topplistan
 leaderboard = [
-    {"name": "Linnea", "time": 14.5},
-    {"name": "Oscar", "time": 18.2},
-    {"name": "Sofia", "time": 22.1}
+    {"name": "Trum-Nisse", "time": 12.4},
+    {"name": "Synth-Sofia", "time": 15.8}
 ]
 
-# API: Hämta topplistan (sorterad på snabbast tid, max 10 st)
-@app.get("/api/leaderboard", response_model=List[ScoreItem])
+class StartRequest(BaseModel):
+    name: str
+
+class SubmitRequest(BaseModel):
+    name: str
+    answers: Dict[str, str]  # Format: {"Beatles": "Yesterday", ...}
+
+@app.get("/api/words")
+def get_words():
+    # Returnerar vänsterlistan intakt och högerlistan separat så frontend kan blanda den
+    return {
+        "left": list(MUSIC_PAIRS.keys()),
+        "right": list(MUSIC_PAIRS.values())
+    }
+
+@app.post("/api/start")
+def start_game(payload: StartRequest):
+    name = payload.name.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Namn kan inte vara tomt")
+    
+    # Spara starttiden för denna spelare
+    active_sessions[name] = time.time()
+    return {"status": "started"}
+
+@app.post("/api/submit")
+def submit_game(payload: SubmitRequest):
+    name = payload.name.strip()
+    if name not in active_sessions:
+        raise HTTPException(status_code=400, detail="Ingen aktiv spelsession hittades för detta namn")
+    
+    end_time = time.time()
+    start_time = active_sessions.pop(name)
+    total_time = round(end_time - start_time, 2)
+    
+    # Kontrollera om svaren är rätt
+    correct_count = 0
+    for left_word, right_word in payload.answers.items():
+        if MUSIC_PAIRS.get(left_word) == right_word:
+            correct_count += 1
+            
+    if correct_count != len(MUSIC_PAIRS):
+        raise HTTPException(status_code=400, detail=f"Alla par är inte korrekta! Du fick {correct_count} rätt.")
+
+    # Spara till topplistan
+    leaderboard.append({"name": name[:15], "time": total_time})
+    return {"success": True, "time": total_time}
+
+@app.get("/api/leaderboard")
 def get_leaderboard():
-    sorted_leaderboard = sorted(leaderboard, key=lambda x: x["time"])
-    return sorted_leaderboard[:10]
+    sorted_lb = sorted(leaderboard, key=lambda x: x["time"])
+    return sorted_lb[:10]
 
-# API: Skicka in en ny tid
-@app.post("/api/leaderboard")
-def submit_score(item: ScoreItem):
-    # Rensa namnet från extra mellanslag
-    clean_name = item.name.strip()
-    if not clean_name:
-        clean_name = "Anonym"
-        
-    leaderboard.append({
-        "name": clean_name[:15],
-        "time": round(item.time, 2)
-    })
-    return {"success": True, "message": "Resultat sparat!"}
-
-# Servera frontend-filer (viktigt att detta ligger EFTER API-routerna)
 app.mount("/", StaticFiles(directory="public", html=True), name="public")
 

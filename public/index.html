@@ -3,122 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ordparningsspel</title>
+    <title>MusicPairing 🎵</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin: 0;
             padding: 20px;
         }
-        h1 { color: #333; }
-        #game-container {
-            max-width: 600px;
+        .container {
+            max-width: 650px;
             width: 100%;
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             text-align: center;
         }
-        .stats {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
+        h1 { color: #38bdf8; margin-bottom: 5px; }
+        p.subtitle { color: #94a3b8; margin-bottom: 25px; }
+        
+        input[type="text"] {
+            padding: 12px;
+            font-size: 1.1rem;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            background: #0f172a;
+            color: white;
+            width: 70%;
+            margin-bottom: 15px;
+        }
+        button {
+            background-color: #0ea5e9;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1.1rem;
             font-weight: bold;
-            color: #4a5568;
-        }
-        .word-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        .card {
-            background-color: #edf2f7;
-            border: 2px solid #cbd5e0;
-            padding: 15px 10px;
-            font-size: 1rem;
-            font-weight: 600;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            user-select: none;
+            transition: background 0.2s;
         }
-        .card:hover { background-color: #e2e8f0; }
-        .card.selected {
-            background-color: #3182ce;
+        button:hover { background-color: #0284c7; }
+        
+        .game-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 25px 0;
+            text-align: left;
+        }
+        .column-title {
+            font-weight: bold;
+            color: #94a3b8;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .item-box {
+            background: #334155;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #475569;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .static-box { background: #1e293b; border: 1px dashed #475569; }
+        
+        .nav-btn {
+            background: #475569;
             color: white;
-            border-color: #2b6cb0;
+            border: none;
+            padding: 4px 8px;
+            font-size: 0.9rem;
+            border-radius: 4px;
+            margin-left: 5px;
+            cursor: pointer;
         }
-        .card.matched {
-            background-color: #48bb78;
-            color: white;
-            border-color: #38a169;
-            visibility: hidden; /* Dölj kortet när det parats ihop */
-        }
-        #leaderboard-section {
-            margin-top: 30px;
+        .nav-btn:hover { background: #64748b; }
+        
+        #leaderboard {
+            margin-top: 40px;
             width: 100%;
-            max-width: 400px;
+            max-width: 450px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-top: 10px;
         }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
-        th { background-color: #4a5568; color: white; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; }
+        th { background-color: #334155; color: #38bdf8; }
         .hidden { display: none !important; }
-        button {
-            background-color: #4c51bf;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-        button:hover { background-color: #434190; }
-        input[type="text"] {
-            padding: 10px;
-            font-size: 1rem;
-            border: 2px solid #cbd5e0;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            width: 80%;
-        }
+        .error-msg { color: #f43f5e; margin-top: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="game-container">
-        <h1>Koppla ihop orden! 🧠</h1>
-        
+    <div class="container">
+        <h1>MusicPairing 🎵</h1>
+        <p class="subtitle">Koppla ihop artisten till vänster med rätt låt till höger!</p>
+
+        <!-- STEG 1: START SKÄRM -->
         <div id="start-screen">
-            <button onclick="startGame()">Starta Spelet</button>
+            <input type="text" id="player-name" placeholder="Skriv ditt artistnamn..." maxlength="15"><br>
+            <button onclick=requestStart()>Starta Spelet</button>
+            <div id="start-error" class="error-msg"></div>
         </div>
 
+        <!-- STEG 2: SPELSKÄRM -->
         <div id="game-screen" class="hidden">
-            <div class="stats">Tid: <span id="timer">0.0</span>s</div>
-            <div class="word-grid" id="grid"></div>
+            <div class="game-layout">
+                <div>
+                    <div class="column-title">Artister (Fasta)</div>
+                    <div id="left-list"></div>
+                </div>
+                <div>
+                    <div class="column-title">Låtar (Sortera med pilarna)</div>
+                    <div id="right-list"></div>
+                </div>
+            </div>
+            <button onclick="submitAnswers()">Skicka in och stoppa tiden!</button>
+            <div id="game-error" class="error-msg"></div>
         </div>
 
-        <div id="save-screen" class="hidden">
-            <h2>Bra jobbat! 🎉</h2>
-            <p>Din tid blev <strong><span id="final-time">0.0</span> sekunder</strong>.</p>
-            <input type="text" id="player-name" placeholder="Skriv ditt namn..." maxlength="15"><br>
-            <button onclick="submitScore()">Spara till Topplistan</button>
+        <!-- STEG 3: VINSTSKÄRM -->
+        <div id="win-screen" class="hidden">
+            <h2>Snyggt gig! 🌟</h2>
+            <p>Du klarade alla par på <strong id="final-time">0.0</strong> sekunder.</p>
+            <button onclick="resetToStart()">Spela Igen</button>
         </div>
     </div>
 
-    <div id="leaderboard-section">
-        <h3>🏆 Topp 10 Snabbaste Tider</h3>
+    <!-- TOPPLISTA -->
+    <div id="leaderboard">
+        <h3>🏆 Topplistans Bästa Tider</h3>
         <table>
             <thead>
                 <tr>
@@ -127,156 +151,150 @@
                     <th>Tid</th>
                 </tr>
             </thead>
-            <tbody id="leaderboard-body">
-                <!-- Laddas dynamiskt via API -->
-            </tbody>
+            <tbody id="leaderboard-body"></tbody>
         </table>
     </div>
 
     <script>
-        // Dina ordpar (Ord -> Matchning)
-        const wordPairs = {
-            "Katt": "Mjau",
-            "Hund": "Voff",
-            "Kaffe": "Mugg",
-            "Bok": "Sida",
-            "Sol": "Sommar",
-            "Vinter": "Snö"
-        };
+        let playerName = "";
+        let leftWords = [];
+        let rightWords = [];
 
-        let wordsList = [];
-        let selectedCards = [];
-        let startTime;
-        let timerInterval;
-        let finalTimeSec = 0;
-        let matchedPairsCount = 0;
-        const totalPairs = Object.keys(wordPairs).length;
+        // Läs in topplistan direkt vid start
+        updateLeaderboard();
 
-        // Initiera appen genom att hämta topplistan direkt
-        updateLeaderboardDisplay();
-
-        function startGame() {
-            document.getElementById('start-screen').classList.add('hidden');
-            document.getElementById('save-screen').classList.add('hidden');
-            document.getElementById('game-screen').classList.remove('hidden');
-            
-            matchedPairsCount = 0;
-            selectedCards = [];
-            
-            // Platta ut orden och blanda dem
-            wordsList = [];
-            for (const [key, value] of Object.entries(wordPairs)) {
-                wordsList.push({ text: key, id: key });   // Nyckel-id är ursprungsordet
-                wordsList.push({ text: value, id: key }); // Samma id för att underlätta matchning
+        async function requestStart() {
+            const input = document.getElementById('player-name').value.trim();
+            if (!input) {
+                document.getElementById('start-error').innerText = "Du måste ange ett namn för att spela!";
+                return;
             }
-            wordsList.sort(() => Math.random() - 0.5);
-
-            // Rendera korten
-            const grid = document.getElementById('grid');
-            grid.innerHTML = '';
-            wordsList.forEach((word, index) => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerText = word.text;
-                card.dataset.id = word.id;
-                card.dataset.index = index;
-                card.onclick = () => selectCard(card);
-                grid.appendChild(card);
-            });
-
-            // Starta tidtagningen
-            startTime = performance.now();
-            timerInterval = setInterval(() => {
-                const elapsed = (performance.now() - startTime) / 1000;
-                document.getElementById('timer').innerText = elapsed.toFixed(1);
-            }, 100);
-        }
-
-        function selectCard(card) {
-            // Förhindra val om kortet redan är matchat eller redan valt
-            if (card.classList.contains('matched') || card.classList.contains('selected')) return;
-            if (selectedCards.length >= 2) return;
-
-            card.classList.add('selected');
-            selectedCards.push(card);
-
-            if (selectedCards.length === 2) {
-                // Kolla om de har samma data-id men inte är exakt samma fysiska kort (texten skiljer sig)
-                const card1 = selectedCards[0];
-                const card2 = selectedCards[1];
-
-                if (card1.dataset.id === card2.dataset.id && card1.dataset.index !== card2.dataset.index) {
-                    // Matchning!
-                    setTimeout(() => {
-                        card1.classList.remove('selected');
-                        card2.classList.remove('selected');
-                        card1.classList.add('matched');
-                        card2.classList.add('matched');
-                        
-                        matchedPairsCount++;
-                        selectedCards = [];
-
-                        if (matchedPairsCount === totalPairs) {
-                            endGame();
-                        }
-                    }, 300);
-                } else {
-                    // Missmatch – nollställ efter en kort stund
-                    setTimeout(() => {
-                        card1.classList.remove('selected');
-                        card2.classList.remove('selected');
-                        selectedCards = [];
-                    }, 700);
-                }
-            }
-        }
-
-        function endGame() {
-            clearInterval(timerInterval);
-            finalTimeSec = (performance.now() - startTime) / 1000;
-            
-            document.getElementById('game-screen').classList.add('hidden');
-            document.getElementById('save-screen').classList.remove('hidden');
-            document.getElementById('final-time').innerText = finalTimeSec.toFixed(2);
-        }
-
-        async function submitScore() {
-            const nameInput = document.getElementById('player-name').value;
-            const name = nameInput ? nameInput.trim() : "Anonym";
+            playerName = input;
 
             try {
-                const response = await fetch('/api/leaderboard', {
+                const res = await fetch('/api/start', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: name, time: finalTimeSec })
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ name: playerName })
                 });
 
-                if (response.ok) {
-                    document.getElementById('player-name').value = '';
-                    document.getElementById('save-screen').classList.add('hidden');
-                    document.getElementById('start-screen').classList.remove('hidden');
-                    updateLeaderboardDisplay();
+                if (res.ok) {
+                    const wordsRes = await fetch('/api/words');
+                    const data = await wordsRes.json();
+                    
+                    leftWords = data.left;
+                    // Blanda högerlistan
+                    rightWords = data.right.sort(() => Math.random() - 0.5);
+
+                    renderLists();
+                    
+                    document.getElementById('start-screen').classList.add('hidden');
+                    document.getElementById('game-screen').classList.remove('hidden');
+                } else {
+                    const errData = await res.json();
+                    document.getElementById('start-error').innerText = errData.detail;
                 }
             } catch (err) {
-                console.error("Kunde inte spara poäng:", err);
+                console.error(err);
             }
         }
 
-        async function updateLeaderboardDisplay() {
-            try {
-                const response = await fetch('/api/leaderboard');
-                const data = await response.json();
-                
-                const tbody = document.getElementById('leaderboard-body');
-                tbody.innerHTML = '';
+        function renderLists() {
+            const leftContainer = document.getElementById('left-list');
+            const rightContainer = document.getElementById('right-list');
+            
+            leftContainer.innerHTML = '';
+            rightContainer.innerHTML = '';
 
-                data.forEach((entry, index) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td><strong>#${index + 1}</strong></td>
-                        <td>${entry.name}</td>
-                        <td>${entry.time.toFixed(2)}s</td>
-                    `;
-                    tbody.appendChild(row);
+            // Rendera fasta vänster-ord
+            leftWords.forEach(word => {
+                const box = document.createElement('div');
+                box.className = 'item-box static-box';
+                box.innerText = word;
+                leftContainer.appendChild(box);
+            });
+
+            // Rendera flyttbara höger-ord
+            rightWords.forEach((word, index) => {
+                const box = document.createElement('div');
+                box.className = 'item-box';
+                
+                const textSpan = document.createElement('span');
+                textSpan.innerText = word;
+                box.appendChild(textSpan);
+
+                const btnWrapper = document.createElement('div');
+
+                const upBtn = document.createElement('button');
+                upBtn.className = 'nav-btn';
+                upBtn.innerText = '▲';
+                upBtn.onclick = () => moveItem(index, -1);
+                btnWrapper.appendChild(upBtn);
+
+                const downBtn = document.createElement('button');
+                downBtn.className = 'nav-btn';
+                downBtn.innerText = '▼';
+                downBtn.onclick = () => moveItem(index, 1);
+                btnWrapper.appendChild(downBtn);
+
+                box.appendChild(btnWrapper);
+                rightContainer.appendChild(box);
+            });
+        }
+
+        function moveItem(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= rightWords.length) return;
+
+            // Byt plats på elementen säkert
+            const temp = rightWords[index];
+            rightWords[index] = rightWords[newIndex];
+            rightWords[newIndex] = temp;
+
+            renderLists();
+        }
+
+        async function submitAnswers() {
+            const answers = {};
+            leftWords.forEach((leftWord, index) => {
+                answers[leftWord] = rightWords[index];
+            });
+
+            try {
+                const res = await fetch('/api/submit', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ name: playerName, answers: answers })
                 });
 
+                const data = await res.json();
+
+                if (res.ok) {
+                    document.getElementById('game-screen').classList.add('hidden');
+                    document.getElementById('win-screen').classList.remove('hidden');
+                    document.getElementById('final-time').innerText = data.time;
+                    document.getElementById('game-error').innerText = "";
+                    updateLeaderboard();
+                } else {
+                    document.getElementById('game-error').innerText = data.detail || "Något blev fel, kontrollera dina par!";
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function updateLeaderboard() {
+            try {
+                const res = await fetch('/api/leaderboard');
+                const data = await res.json();
+                const tbody = document.getElementById('leaderboard-body');
+                tbody.innerHTML = '';
+                data.forEach((entry, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td><strong>#${index+1}</strong></td><td>${entry.name}</td><td>${entry.time}s</td>`;
+                    tbody.appendChild(row);
+                });
+	    } catch (err) {
+                console.error(err);
+            }
+        }
