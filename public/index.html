@@ -6,7 +6,7 @@
     <title>MusicPairing 🎵</title>
     <style>
         body {
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: #0f172a;
             color: #f8fafc;
             display: flex;
@@ -14,35 +14,34 @@
             align-items: center;
             margin: 0;
             padding: 10px;
-            box-sizing: border-box;
             min-height: 100vh;
+            box-sizing: border-box;
         }
         .container {
-            max-width: 650px;
+            max-width: 500px;
             width: 100%;
             background: #1e293b;
-            padding: 20px;
+            padding: 25px;
             border-radius: 16px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             text-align: center;
             box-sizing: border-box;
             margin-top: 10px;
         }
-        h1 { color: #38bdf8; margin: 0 0 5px 0; font-size: 2rem; }
-        p.subtitle { color: #94a3b8; margin: 0 0 20px 0; font-size: 0.95rem; padding: 0 10px; }
+        h1 { color: #38bdf8; margin: 0 0 5px 0; }
+        p.subtitle { color: #94a3b8; font-size: 0.9rem; margin-bottom: 25px; }
         
         input[type="text"] {
-            padding: 12px;
+            padding: 14px;
             font-size: 1.1rem;
             border: 2px solid #334155;
             border-radius: 8px;
             background: #0f172a;
             color: white;
-            width: 85%;
-            max-width: 350px;
+            width: 90%;
             margin-bottom: 15px;
-            box-sizing: border-box;
             text-align: center;
+            box-sizing: border-box;
         }
         button.action-btn {
             background-color: #0ea5e9;
@@ -53,326 +52,235 @@
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-            width: 85%;
-            max-width: 350px;
+            width: 90%;
             box-sizing: border-box;
-            touch-action: manipulation;
         }
-        button.action-btn:hover { background-color: #0284c7; }
-        button.action-btn:active { transform: scale(0.98); }
         
-        /* Flexbox-layout som blir en kolumn på mobiler och två kolumner på datorer */
-        .game-layout {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            margin: 20px 0;
-            text-align: left;
-        }
-        .column {
-            flex: 1;
-            width: 100%;
-        }
-        .column-title {
+        .score-counter {
+            font-size: 1.1rem;
             font-weight: bold;
             color: #94a3b8;
             margin-bottom: 10px;
-            text-align: center;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            display: flex;
+            justify-content: space-between;
         }
-        .item-box {
+        
+        /* Den aktuella låten i fokus */
+        .song-display {
+            background: #0f172a;
+            padding: 25px 15px;
+            border-radius: 12px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #38bdf8;
+            border: 2px solid #1e293b;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+            margin-bottom: 25px;
+            word-wrap: break-word;
+        }
+        .song-label {
+            font-size: 0.8rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 5px;
+        }
+
+        /* Knapparna för de 8 artisterna */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 2 kolumner sida vid sida på alla skärmar */
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .option-btn {
             background: #334155;
-            padding: 16px;
-            margin-bottom: 10px;
+            border: 2px solid #475569;
+            color: white;
+            padding: 16px 10px;
             border-radius: 8px;
-            border: 1px solid #475569;
-            min-height: 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
-            font-size: 1.05rem;
-            text-align: center;
-            box-sizing: border-box;
-            user-select: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            min-height: 55px;
         }
-        .static-box { 
-            background: #1e293b; 
-            border: 1px dashed #475569; 
-            color: #cbd5e1;
+        .option-btn:active {
+            transform: scale(0.97);
         }
         
-        /* Draggable stilar */
-        .draggable-box {
-            background: #475569;
-            border: 2px solid #0ea5e9;
-            cursor: grab;
-            touch-action: none; /* Förhindrar att mobilens skärm scrollar när man drar */
-        }
-        .draggable-box:active { cursor: grabbing; }
-        .draggable-box.dragging {
-            opacity: 0.4;
-            background: #1e293b;
-            border: 2px dashed #38bdf8;
-        }
-        
-        #leaderboard {
-            margin-top: 30px;
-            width: 100%;
-            max-width: 500px;
-            box-sizing: border-box;
-            padding: 0 10px;
-        }
-        #leaderboard h3 { text-align: center; margin-bottom: 10px; color: #38bdf8; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #1e293b;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; font-size: 0.95rem; }
-        th { background-color: #334155; color: #38bdf8; font-weight: bold; }
-        .hidden { display: none !important; }
-        .error-msg { color: #f43f5e; margin-top: 10px; font-weight: bold; font-size: 0.95rem; }
+        /* Feedback-klasser vid klick */
+        .option-btn.correct { background-color: #10b981 !important; border-color: #34d399 !important; }
+        .option-btn.wrong { background-color: #f43f5e !important; border-color: #f87171 !important; opacity: 0.6; }
+        .disabled { pointer-events: none; }
 
-        /* Media Query för surfplattor och datorer */
-        @media (min-width: 600px) {
-            body { padding: 30px 20px; }
-            .container { padding: 30px; }
-            h1 { font-size: 2.5rem; }
-            .game-layout { flex-direction: row; gap: 25px; }
-            .item-box { font-size: 1.1rem; height: 30px; }
-            th, td { padding: 14px; font-size: 1rem; }
-        }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Musik Matchning 🎵</h1>
-        <p class="subtitle">Matcha så gott du kan!</p>
+        <h1>MusicPairing 🎵</h1>
+        <p class="subtitle">Vem diggar låten? Välj rätt artist bland alternativen!</p>
 
-        <!-- STEG 1: START SKÄRM -->
+        <!-- STEG 1: START -->
         <div id="start-screen">
-            <input type="text" id="player-name" placeholder="Skriv ditt artistnamn..." maxlength="15"><br>
-            <button class="action-btn" onclick="requestStart()">Starta Spelet</button>
-            <div id="start-error" class="error-msg"></div>
+            <input type="text" id="player-name" placeholder="Ditt artistnamn..." maxlength="15"><br>
+            <button class="action-btn" onclick="requestStart()">Starta Quizet</button>
         </div>
 
         <!-- STEG 2: SPELSKÄRM -->
         <div id="game-screen" class="hidden">
-            <div class="game-layout">
-                <div class="column">
-                    <div class="column-title">Delatager</div>
-                    <div id="left-list"></div>
-                </div>
-                <div class="column">
-                    <div class="column-title">Låt och Artist</div>
-                    <div id="right-list"></div>
-                </div>
+            <div class="score-counter">
+                <span>Fråga: <span id="current-question-num">1</span> / <span id="total-questions-num">10</span></span>
+                <span>Poäng: <span id="current-score">0</span></span>
             </div>
-            <button class="action-btn" onclick="submitAnswers()">Skicka in svar!</button>
-            <div id="game-error" class="error-msg"></div>
+            
+            <div class="song-display">
+                <div class="song-label">Aktuell Låt</div>
+                <div id="song-text">Laddar...</div>
+            </div>
+
+            <div class="options-grid" id="options-container">
+                <!-- 8 knappar genereras här -->
+            </div>
         </div>
 
-        <!-- STEG 3: VINSTSKÄRM -->
+        <!-- STEG 3: VINST
         <div id="win-screen" class="hidden">
-            <h2>🌟</h2>
-            <p style="font-size: 1.2rem;">Du lyckades para ihop <strong id="final-score" style="color: #38bdf8;">0.0</strong> deltager med rätt låt.</p>
-            <!-- <button class="action-btn" onclick="resetToStart()">Spela Igen</button> -->
+            <h2>Giget är slut! 🌟</h2>
+            <p style="font-size: 1.25rem;">Riktigt bra kört! Din slutgiltiga poäng blev:</p>
+            <h1 style="font-size: 3rem; color: #10b981; margin: 10px 0;"><span id="final-score">0</span></h1>
+            <button class="action-btn" onclick="window.location.href='/leaderboard'">Visa Topplistan 🏆</button>
+        </div> -->
+        <!-- STEG 3: VINST- OCH TACKSKÄRM -->
+        <div id="win-screen" class="hidden">
+            <div class="thank-you-icon">❤️🎸</div>
+            <h2>Spelet är slut, <span id="thank-you-name" style="color: #38bdf8;">Spelare</span>!</h2>
+            <p style="font-size: 1.15rem; color: #94a3b8; margin-bottom: 5px;">Tack för att du var med och spelade!</p>
+            <p style="font-size: 1.25rem; margin-top: 5px;">Din slutgiltiga poäng blev:</p>
+            
+            <h1 style="font-size: 3.5rem; color: #10b981; margin: 15px 0;"><span id="final-score">0</span></h1>
+            
+            <!-- Navigeringsknappar
+            <button class="action-btn" onclick="window.location.href='/leaderboard'">Visa Topplistan 🏆</button>
+            <button class="action-btn" onclick="resetToStart()" style="background-color: #475569;">Spela Igen 🔄</button>
+            -->
         </div>
     </div>
 
-    <!-- TOPPLISTA
-    <div id="leaderboard">
-        <h3>🏆 Topplistan</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Plats</th>
-                    <th>Namn</th>
-                    <th>Antal Rätt</th>
-                </tr>
-            </thead>
-            <tbody id="leaderboard-body"></tbody>
-        </table>
-    </div>
-    -->
     <script>
         let playerName = "";
-        let leftWords = [];
-        let rightWords = [];
-
-        // Läs in topplistan direkt vid start
-        // updateLeaderboard();
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
 
         async function requestStart() {
             const input = document.getElementById('player-name').value.trim();
-            if (!input) {
-                document.getElementById('start-error').innerText = "Du måste ange ett namn för att spela!";
-                return;
-            }
+            if (!input) return;
             playerName = input;
 
             try {
-                const res = await fetch('/api/start', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ name: playerName })
-                });
-
-                if (res.ok) {
-                    const wordsRes = await fetch('/api/words');
-                    const data = await wordsRes.json();
-                    
-                    leftWords = data.left;
-                    // Blanda högerlistan
-                    rightWords = data.right.sort(() => Math.random() - 0.5);
-
-                    renderLists();
-                    
-                    document.getElementById('start-screen').classList.add('hidden');
-                    document.getElementById('game-screen').classList.remove('hidden');
-                } else {
-                    const errData = await res.json();
-                    document.getElementById('start-error').innerText = errData.detail;
-                }
-            } catch (err) {
-                console.error(err);
-            }
-        }
-
-        function renderLists() {
-            const leftContainer = document.getElementById('left-list');
-            const rightContainer = document.getElementById('right-list');
-            
-            leftContainer.innerHTML = '';
-            rightContainer.innerHTML = '';
-
-            // Rendera fasta vänster-ord (Artister)
-            leftWords.forEach(word => {
-                const box = document.createElement('div');
-                box.className = 'item-box static-box';
-                box.innerText = word;
-                leftContainer.appendChild(box);
-            });
-
-            // Rendera flyttbara höger-ord (Låtar)
-            rightWords.forEach((word, index) => {
-                const box = document.createElement('div');
-                box.className = 'item-box draggable-box';
-                box.innerText = word;
-                box.draggable = true;
-                box.dataset.index = index;
-
-                // --- DRAG AND DROP EVENTS (Dator/Mus) ---
-                box.addEventListener('dragstart', (e) => {
-                    box.classList.add('dragging');
-                    e.dataTransfer.setData('text/plain', index);
-                });
-
-                box.addEventListener('dragend', () => {
-                    box.classList.remove('dragging');
-                });
-
-                box.addEventListener('dragover', (e) => {
-                    e.preventDefault(); // Tillåt att släppa här
-                });
-
-                box.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    const draggedIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
-                    handleReorder(draggedIndex, index);
-                });
-
-                // --- TOUCH EVENTS (Mobil/Pekskärm) ---
-                box.addEventListener('touchstart', (e) => {
-                    box.classList.add('dragging');
-                    box.dataset.startY = e.touches[0].clientY;
-                }, { passive: true });
-
-                box.addEventListener('touchmove', (e) => {
-                    e.preventDefault(); // Stoppa skärmscroll under drag
-                    const touchY = e.touches[0].clientY;
-
-                    // Hitta vilket element fingret är över just nu
-                    const targetEl = document.elementFromPoint(e.touches[0].clientX, touchY);
-                    const closestBox = targetEl ? targetEl.closest('.draggable-box') : null;
-
-                    if (closestBox && closestBox !== box) {
-                        const targetIndex = parseInt(closestBox.dataset.index, 10);
-                        const draggedIndex = parseInt(box.dataset.index, 10);
-                        handleReorder(draggedIndex, targetIndex);
-                    }
-                }, { passive: false });
-
-                box.addEventListener('touchend', () => {
-                    box.classList.remove('dragging');
-                });
+                const wordsRes = await fetch('/api/words');
+                const data = await wordsRes.json();
                 
-                rightContainer.appendChild(box);
-            });
-        }
-        // Funktion för att byta plats på elementen i listan och rita om
-        function handleReorder(fromIndex, toIndex) {
-            if (fromIndex === toIndex || isNaN(fromIndex) || isNaN(toIndex)) return;
-            // Flytta elementet i arrayen
-            const movedItem = rightWords.splice(fromIndex, 1)[0];
-            rightWords.splice(toIndex, 0, movedItem);
-            renderLists();
+                questions = data.questions;
+                currentQuestionIndex = 0;
+                score = 0;
+
+                document.getElementById('total-questions-num').innerText = questions.length;
+                
+                showQuestion();
+
+                document.getElementById('start-screen').classList.add('hidden');
+                document.getElementById('game-screen').classList.remove('hidden');
+            } catch (err) { console.error("Kunde inte starta spelet:", err); }
         }
 
-        async function submitAnswers() {
-            const answers = {};
-            leftWords.forEach((leftWord, index) => {
-                answers[leftWord] = rightWords[index];
-            });
+        function showQuestion() {
+            const currentQuestion = questions[currentQuestionIndex];
+            
+            // Uppdatera räknare och låttext
+            document.getElementById('current-question-num').innerText = currentQuestionIndex + 1;
+            document.getElementById('current-score').innerText = score;
+            document.getElementById('song-text').innerText = `"${currentQuestion.song}"`;
 
+            // Rendera de 8 knapparna
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            currentQuestion.options.forEach(artist => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = artist;
+                
+                btn.onclick = () => handleAnswer(btn, artist, currentQuestion.correct_artist);
+                
+                container.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedBtn, selectedArtist, correctArtist) {
+            const container = document.getElementById('options-container');
+            
+            // Lås alla knappar omedelbart så man inte kan klicka flera gånger
+            const buttons = container.getElementsByClassName('option-btn');
+            for (let btn of buttons) {
+                btn.classList.add('disabled');
+            }
+
+            if (selectedArtist === correctArtist) {
+                // RÄTT SVAR: Lys grönt!
+                selectedBtn.classList.add('correct');
+                score++;
+                document.getElementById('current-score').innerText = score;
+            } else {
+                // FEL SVAR: Lys rött på den valda, och visa den rätta i grönt
+                selectedBtn.classList.add('wrong');
+                
+                for (let btn of buttons) {
+                    if (btn.innerText === correctArtist) {
+                        btn.classList.add('correct');
+                    }
+                }
+            }
+
+            // Vänta 1.2 sekunder så spelaren hinner se resultatet, gå sedan vidare
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    showQuestion();
+                } else {
+                    submitFinalGame();
+                }
+            }, 1200);
+        }
+
+        async function submitFinalGame() {
             try {
                 const res = await fetch('/api/submit', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ name: playerName, answers: answers })
+                    body: JSON.stringify({ name: playerName, score: score })
                 });
-                const data = await res.json();
+
                 if (res.ok) {
                     document.getElementById('game-screen').classList.add('hidden');
                     document.getElementById('win-screen').classList.remove('hidden');
-                    document.getElementById('final-score').innerText = data.score;
-                    document.getElementById('game-error').innerText = "";
-                    // updateLeaderboard();
-                } else {
-                    document.getElementById('game-error').innerText = data.detail || "Något blev fel, kontrollera dina par!";
+                    
+                    // Skriv ut tack-namnet och slutpoängen dynamiskt
+                    document.getElementById('thank-you-name').innerText = playerName;
+                    document.getElementById('final-score').innerText = `${score}`;
                 }
             } catch (err) {
-                console.error(err);
+                console.error("Kunde inte skicka poäng:", err);
             }
-        }
-        // async function updateLeaderboard() {
-        //     try {
-        //         const res = await fetch('/api/leaderboard');
-        //         const data = await res.json();
-        //         const tbody = document.getElementById('leaderboard-body');
-        //         tbody.innerHTML = '';
-        //         data.forEach((entry, index) => {
-        //             const row = document.createElement('tr');
-        //             row.innerHTML = `<td><strong>#${index+1}</strong></td><td>${entry.name}</td><td>${entry.score}</td>`;
-        //             tbody.appendChild(row);
-        //         });
-        //     } catch (err) {
-        //         console.error(err);
-        //     }
-        // }
-
-        function resetToStart() {
-            document.getElementById('player-name').value = "";
-            document.getElementById('win-screen').classList.add('hidden');
-            document.getElementById('start-screen').classList.remove('hidden');
         }
     </script>
 </body>
+</html>

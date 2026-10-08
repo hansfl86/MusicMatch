@@ -1,3 +1,4 @@
+import random
 import time
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
@@ -40,24 +41,71 @@ MUSIC_PAIRS = {
 
 # Databas i minnet för topplistan
 leaderboard = [
-    {"name": "Trum-Nisse", "score": 1},
-    {"name": "Synth-Sofia", "score": 15.8}
 ]
 
 class StartRequest(BaseModel):
     name: str
 
+# class SubmitRequest(BaseModel):
+#     name: str
+#     answers: Dict[str, str]  # Format: {"Beatles": "Yesterday", ...}
+
 class SubmitRequest(BaseModel):
     name: str
-    answers: Dict[str, str]  # Format: {"Beatles": "Yesterday", ...}
+    score: int
+
+# @app.get("/api/words")
+# def get_words():
+#     # Returnerar vänsterlistan intakt och högerlistan separat så frontend kan blanda den
+#     return {
+#         "left": list(MUSIC_PAIRS.keys()),
+#         "right": list(MUSIC_PAIRS.values())
+#     }
 
 @app.get("/api/words")
 def get_words():
-    # Returnerar vänsterlistan intakt och högerlistan separat så frontend kan blanda den
+    all_pairs = list(MUSIC_PAIRS.items())
+    
+    # Hur många frågor vill du ha i en spelrunda? 
+    # Eftersom det är snabbt på mobilen kan vi ta tigen t.ex. 10 frågor av dina 30 totalt.
+    num_questions = len(all_pairs)
+    # num_questions = min(10, len(all_pairs))
+    sampled_pairs = random.sample(all_pairs, num_questions)
+    
+    questions = []
+    all_artists = list(MUSIC_PAIRS.keys())
+
+    for artist, song in sampled_pairs:
+        # Skapa poolen med felaktiga svar (distraktorer)
+        other_artists = [a for a in all_artists if a != artist]
+        
+        # Välj ut 7 slumpmässiga FELAKTIGA artister
+        # (Använd min utifall att du har färre än 8 artister totalt i databasen just nu)
+        num_distractors = min(7, len(other_artists))
+        sampled_distractors = random.sample(other_artists, num_distractors)
+        
+        # Sätt ihop till 8 alternativ totalt och blanda dem
+        options = sampled_distractors + [artist]
+        random.shuffle(options)
+        
+        questions.append({
+            "song": song,
+            "correct_artist": artist,
+            "options": options
+        })
+        
     return {
-        "left": list(MUSIC_PAIRS.keys()),
-        "right": list(MUSIC_PAIRS.values())
+        "questions": questions
     }
+
+
+@app.post("/api/submit")
+def submit_game(payload: SubmitRequest):
+    name = payload.name.strip()
+    if not name: 
+        raise HTTPException(status_code=400, detail="Namn saknas")
+    leaderboard.append({"name": name[:15], "score": payload.score})
+    return {"success": True}    
 
 @app.post("/api/start")
 def start_game(payload: StartRequest):
@@ -69,20 +117,20 @@ def start_game(payload: StartRequest):
     # active_sessions[name] = time.time()
     return {"status": "started"}
 
-@app.post("/api/submit")
-def submit_game(payload: SubmitRequest):
-    name = payload.name.strip()
-    
-    # Kontrollera om svaren är rätt
-    correct_count = 0
-    for left_word, right_word in payload.answers.items():
-        if MUSIC_PAIRS.get(left_word) == right_word:
-            correct_count += 1
-            
-
-    # Spara till topplistan
-    leaderboard.append({"name": name[:15], "score": correct_count})
-    return {"success": True, "score": correct_count}
+# @app.post("/api/submit")
+# def submit_game(payload: SubmitRequest):
+#     name = payload.name.strip()
+#     
+#     # Kontrollera om svaren är rätt
+#     correct_count = 0
+#     for left_word, right_word in payload.answers.items():
+#         if MUSIC_PAIRS.get(left_word) == right_word:
+#             correct_count += 1
+#             
+# 
+#     # Spara till topplistan
+#     leaderboard.append({"name": name[:15], "score": correct_count})
+#     return {"success": True, "score": correct_count}
 
 @app.get("/api/leaderboard")
 def get_leaderboard():
