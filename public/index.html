@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ordparningsspel</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 { color: #333; }
+        #game-container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stats {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #4a5568;
+        }
+        .word-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background-color: #edf2f7;
+            border: 2px solid #cbd5e0;
+            padding: 15px 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        .card:hover { background-color: #e2e8f0; }
+        .card.selected {
+            background-color: #3182ce;
+            color: white;
+            border-color: #2b6cb0;
+        }
+        .card.matched {
+            background-color: #48bb78;
+            color: white;
+            border-color: #38a169;
+            visibility: hidden; /* Dölj kortet när det parats ihop */
+        }
+        #leaderboard-section {
+            margin-top: 30px;
+            width: 100%;
+            max-width: 400px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { background-color: #4a5568; color: white; }
+        .hidden { display: none !important; }
+        button {
+            background-color: #4c51bf;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        button:hover { background-color: #434190; }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 1rem;
+            border: 2px solid #cbd5e0;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            width: 80%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <h1>Koppla ihop orden! 🧠</h1>
+        
+        <div id="start-screen">
+            <button onclick="startGame()">Starta Spelet</button>
+        </div>
+
+        <div id="game-screen" class="hidden">
+            <div class="stats">Tid: <span id="timer">0.0</span>s</div>
+            <div class="word-grid" id="grid"></div>
+        </div>
+
+        <div id="save-screen" class="hidden">
+            <h2>Bra jobbat! 🎉</h2>
+            <p>Din tid blev <strong><span id="final-time">0.0</span> sekunder</strong>.</p>
+            <input type="text" id="player-name" placeholder="Skriv ditt namn..." maxlength="15"><br>
+            <button onclick="submitScore()">Spara till Topplistan</button>
+        </div>
+    </div>
+
+    <div id="leaderboard-section">
+        <h3>🏆 Topp 10 Snabbaste Tider</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Plats</th>
+                    <th>Namn</th>
+                    <th>Tid</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+                <!-- Laddas dynamiskt via API -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Dina ordpar (Ord -> Matchning)
+        const wordPairs = {
+            "Katt": "Mjau",
+            "Hund": "Voff",
+            "Kaffe": "Mugg",
+            "Bok": "Sida",
+            "Sol": "Sommar",
+            "Vinter": "Snö"
+        };
+
+        let wordsList = [];
+        let selectedCards = [];
+        let startTime;
+        let timerInterval;
+        let finalTimeSec = 0;
+        let matchedPairsCount = 0;
+        const totalPairs = Object.keys(wordPairs).length;
+
+        // Initiera appen genom att hämta topplistan direkt
+        updateLeaderboardDisplay();
+
+        function startGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('save-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            
+            matchedPairsCount = 0;
+            selectedCards = [];
+            
+            // Platta ut orden och blanda dem
+            wordsList = [];
+            for (const [key, value] of Object.entries(wordPairs)) {
+                wordsList.push({ text: key, id: key });   // Nyckel-id är ursprungsordet
+                wordsList.push({ text: value, id: key }); // Samma id för att underlätta matchning
+            }
+            wordsList.sort(() => Math.random() - 0.5);
+
+            // Rendera korten
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            wordsList.forEach((word, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerText = word.text;
+                card.dataset.id = word.id;
+                card.dataset.index = index;
+                card.onclick = () => selectCard(card);
+                grid.appendChild(card);
+            });
+
+            // Starta tidtagningen
+            startTime = performance.now();
+            timerInterval = setInterval(() => {
+                const elapsed = (performance.now() - startTime) / 1000;
+                document.getElementById('timer').innerText = elapsed.toFixed(1);
+            }, 100);
+        }
+
+        function selectCard(card) {
+            // Förhindra val om kortet redan är matchat eller redan valt
+            if (card.classList.contains('matched') || card.classList.contains('selected')) return;
+            if (selectedCards.length >= 2) return;
+
+            card.classList.add('selected');
+            selectedCards.push(card);
+
+            if (selectedCards.length === 2) {
+                // Kolla om de har samma data-id men inte är exakt samma fysiska kort (texten skiljer sig)
+                const card1 = selectedCards[0];
+                const card2 = selectedCards[1];
+
+                if (card1.dataset.id === card2.dataset.id && card1.dataset.index !== card2.dataset.index) {
+                    // Matchning!
+                    setTimeout(() => {
+                        card1.classList.remove('selected');
+                        card2.classList.remove('selected');
+                        card1.classList.add('matched');
+                        card2.classList.add('matched');
+                        
+                        matchedPairsCount++;
+                        selectedCards = [];
+
+                        if (matchedPairsCount === totalPairs) {
+                            endGame();
+                        }
+                    }, 300);
+                } else {
+                    // Missmatch – nollställ efter en kort stund
+                    setTimeout(() => {
+                        card1.classList.remove('selected');
+                        card2.classList.remove('selected');
+                        selectedCards = [];
+                    }, 700);
+                }
+            }
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            finalTimeSec = (performance.now() - startTime) / 1000;
+            
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('save-screen').classList.remove('hidden');
+            document.getElementById('final-time').innerText = finalTimeSec.toFixed(2);
+        }
+
+        async function submitScore() {
+            const nameInput = document.getElementById('player-name').value;
+            const name = nameInput ? nameInput.trim() : "Anonym";
+
+            try {
+                const response = await fetch('/api/leaderboard', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: name, time: finalTimeSec })
+                });
+
+                if (response.ok) {
+                    document.getElementById('player-name').value = '';
+                    document.getElementById('save-screen').classList.add('hidden');
+                    document.getElementById('start-screen').classList.remove('hidden');
+                    updateLeaderboardDisplay();
+                }
+            } catch (err) {
+                console.error("Kunde inte spara poäng:", err);
+            }
+        }
+
+        async function updateLeaderboardDisplay() {
+            try {
+                const response = await fetch('/api/leaderboard');
+                const data = await response.json();
+                
+                const tbody = document.getElementById('leaderboard-body');
+                tbody.innerHTML = '';
+
+                data.forEach((entry, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>#${index + 1}</strong></td>
+                        <td>${entry.name}</td>
+                        <td>${entry.time.toFixed(2)}s</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
