@@ -10,11 +10,29 @@ app = FastAPI()
 
 # Vår musikaliska databas (Vänster ord -> Rätt höger ord)
 MUSIC_PAIRS = {
-    "Lennart": " - Beatles",
-    "Jennifer": "In da' club - 50 cent",
-    "Kenneth": "Locomotion - Eva Julie",
+    "Lennart": "Twist and Shout - Beatles",
+    "Jennifer": "In Da Club - 50 cent",
+    "Kenneth": "Locomotion - Little Eva",
+    "Anci": "Sailing - Rod Stewart",
+    "Rolf": "Paradise by the dashbord light - Meat Loaf",
+    "Anders S": "Mr Vain - Culture Beast",
+    "Elliot": "Eu Vou Vivenciar - Mr Collin & MUCK",
+    "Dainel": "November Rain",
+    "Teta": "Nookie - Limp Bizkit",
+    "Kerstin": "Yes Sir, I Can Boogie - Baccara",
+    "Jan": "Moonlight Serenade - Glen Miller",
+    "Maggie": "Highway Man - Hoffmaestro",
+    "Britta": "Oh Julie - Shakin' Stevens",
+    "Morris": "The Motto - Ava Max & Tiesto",
     "Leo B": "Total Eclipse of my Heart - Bonnie Tyler",
-    "Siri": "Lush Life - Zara Larsson"
+    "Siri": "Lush Life - Zara Larsson",
+    "Anders G": "Basket Case - Green Day",
+    "Lena": "Dragostea Din Tei - O-Zone",
+    "Chanelle": "As - Stevie Wonder",
+    "Per": "Bad Boy - Cascada",
+    "Alva": "All in för Sverige - Brandsta City Släckers",
+    "Leo WK": "Hollow - Smash into Pieces",
+    "Lars": "Alright - Supergrass"
 }
 
 # Håller koll på aktiva spelsessioner baserat på spelarnamn (för tidsmätning)
