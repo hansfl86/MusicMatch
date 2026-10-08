@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MusicPairing 🎵</title>
+    <title>Topplista - MusicPairing 🏆</title>
     <style>
         body {
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
@@ -13,163 +13,133 @@
             flex-direction: column;
             align-items: center;
             margin: 0;
-            padding: 10px;
-            box-sizing: border-box;
+            padding: 15px;
             min-height: 100vh;
+            box-sizing: border-box;
         }
-        .container {
-            max-width: 650px;
+        
+        /* Flexbox-layout som anpassar sig efter skärmstorlek */
+        .main-layout {
+            display: flex;
+            flex-direction: column; /* Staplas vertikalt på små skärmar */
+            gap: 25px;
+            max-width: 900px;
             width: 100%;
+            margin-top: 15px;
+        }
+
+        .leaderboard-section {
+            flex: 1.5; /* Tar upp lite mer plats än QR-koden */
             background: #1e293b;
-            padding: 20px;
+            padding: 25px;
             border-radius: 16px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             text-align: center;
             box-sizing: border-box;
-            margin-top: 10px;
         }
-        h1 { color: #38bdf8; margin: 0 0 5px 0; font-size: 2rem; }
-        p.subtitle { color: #94a3b8; margin: 0 0 20px 0; font-size: 0.95rem; padding: 0 10px; }
-        
-        input[type="text"] {
-            padding: 12px;
-            font-size: 1.1rem;
-            border: 2px solid #334155;
-            border-radius: 8px;
-            background: #0f172a;
-            color: white;
-            width: 85%;
-            max-width: 350px;
-            margin-bottom: 15px;
-            box-sizing: border-box;
+
+        .qr-section {
+            flex: 1;
+            background: #1e293b;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             text-align: center;
-        }
-        button.action-btn {
-            background-color: #0ea5e9;
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-            width: 85%;
-            max-width: 350px;
-            box-sizing: border-box;
-            touch-action: manipulation;
-        }
-        button.action-btn:hover { background-color: #0284c7; }
-        button.action-btn:active { transform: scale(0.98); }
-        
-        /* Flexbox-layout som blir en kolumn på mobiler och två kolumner på datorer */
-        .game-layout {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            margin: 20px 0;
-            text-align: left;
-        }
-        .column {
-            flex: 1;
-            width: 100%;
-        }
-        .column-title {
-            font-weight: bold;
-            color: #94a3b8;
-            margin-bottom: 10px;
-            text-align: center;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .item-box {
-            background: #334155;
-            padding: 16px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            border: 1px solid #475569;
-            min-height: 24px;
-            display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
-            font-size: 1.05rem;
-            text-align: center;
             box-sizing: border-box;
-            user-select: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
         }
-        .static-box { 
-            background: #1e293b; 
-            border: 1px dashed #475569; 
-            color: #cbd5e1;
+
+        h1, h2 { color: #38bdf8; margin-top: 0; }
+        h1 { font-size: 2rem; margin-bottom: 20px; }
+        h2 { font-size: 1.5rem; margin-bottom: 10px; }
+        p.qr-text { color: #94a3b8; font-size: 0.95rem; margin-bottom: 15px; }
+
+        /* QR-kodens behållare och bildinställningar */
+        .qr-container {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            display: inline-block;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            margin-bottom: 15px;
         }
-        
-        /* Draggable stilar */
-        .draggable-box {
-            background: #475569;
-            border: 2px solid #0ea5e9;
-            cursor: grab;
-            touch-action: none; /* Förhindrar att mobilens skärm scrollar när man drar */
+        .qr-container img {
+            display: block;
+            width: 200px;  /* Perfekt storlek för skanning */
+            height: 200px;
+            object-fit: contain;
         }
-        .draggable-box:active { cursor: grabbing; }
-        .draggable-box.dragging {
-            opacity: 0.4;
-            background: #1e293b;
-            border: 2px dashed #38bdf8;
-        }
-        
-        #leaderboard {
-            margin-top: 30px;
-            width: 100%;
-            max-width: 500px;
-            box-sizing: border-box;
-            padding: 0 10px;
-        }
-        #leaderboard h3 { text-align: center; margin-bottom: 10px; color: #38bdf8; }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            background: #1e293b;
+            background: #0f172a;
             border-radius: 12px;
             overflow: hidden;
+            margin-bottom: 25px;
         }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; font-size: 0.95rem; }
+        th, td { padding: 14px; text-align: left; border-bottom: 1px solid #334155; }
         th { background-color: #334155; color: #38bdf8; font-weight: bold; }
-        .hidden { display: none !important; }
-        .error-msg { color: #f43f5e; margin-top: 10px; font-weight: bold; font-size: 0.95rem; }
+        tr:last-child td { border-bottom: none; }
+        
+        button {
+            background-color: #0ea5e9;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+        }
+        button:hover { background-color: #0284c7; }
 
-        /* Media Query för surfplattor och datorer */
-        @media (min-width: 600px) {
+        /* Sida-vid-sida layout för surfplattor, TV-apparater och datorskärmar */
+        @media (min-width: 768px) {
             body { padding: 30px 20px; }
-            .container { padding: 30px; }
-            h1 { font-size: 2.5rem; }
-            .game-layout { flex-direction: row; gap: 25px; }
-            .item-box { font-size: 1.1rem; height: 30px; }
-            th, td { padding: 14px; font-size: 1rem; }
+            .main-layout { flex-direction: row; align-items: stretch; }
         }
     </style>
 </head>
 <body>
 
-    <!-- TOPPLISTA -->
-    <div id="leaderboard">
-        <h3>🏆 Topplistan</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Plats</th>
-                    <th>Namn</th>
-                    <th>Antal Rätt</th>
-                </tr>
-            </thead>
-            <tbody id="leaderboard-body"></tbody>
-        </table>
+    <div class="main-layout">
+        
+        <!-- VÄNSTER/ÖVRE DEL: TOPPLISTAN -->
+        <div class="leaderboard-section">
+            <h1>🏆 Topplista</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Plats</th>
+                        <th>Namn</th>
+                        <th>Antal Rätt</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                    <!-- Laddas dynamiskt med JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- HÖGER/NEDRE DEL: QR-KOD -->
+        <div class="qr-section">
+            <h2>Skanna & Spela!</h2>
+            <p class="qr-text">Vill du utmana topplistan? Skanna koden med din mobil för att starta direkt!</p>
+            <div class="qr-container">
+                <!-- Laddar din bild qrcode.png från samma mapp -->
+                <img src="/qrcode.png" alt="Skanna för att spela spelet">
+            </div>
+        </div>
+
     </div>
 
     <script>
-        // Hämta och rita ut topplistan när sidan öppnas
         async function fetchLeaderboard() {
             try {
                 const res = await fetch('/api/leaderboard');
@@ -178,7 +148,7 @@
                 tbody.innerHTML = '';
 
                 if (data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94a3b8;">Inga tider registrerade än!</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94a3b8;">Inga spelare registrerade än!</td></tr>`;
                     return;
                 }
 
@@ -187,7 +157,7 @@
                     row.innerHTML = `
                         <td><strong>#${index + 1}</strong></td>
                         <td>${entry.name}</td>
-                        <td>${entry.score.toFixed(2)}</td>
+                        <td>${entry.score}</td>
                     `;
                     tbody.appendChild(row);
                 });
@@ -196,11 +166,9 @@
             }
         }
 
-        // 1. Kör funktionen direkt när sidan laddas första gången
+        // Initiera och starta autorefresh var 5:e sekund
         fetchLeaderboard();
-
-        // 2. NYTT: Starta en timer som kör funktionen var 5000:e millisekund (5 sekunder)
         setInterval(fetchLeaderboard, 5000);
-
     </script>
 </body>
+</html>
