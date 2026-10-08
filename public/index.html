@@ -109,14 +109,14 @@
         <h1>MusicPairing 🎵</h1>
         <p class="subtitle">Koppla ihop artisten till vänster med rätt låt till höger!</p>
 
-        <!-- STEG 1: START SKÄRM -->
+        <!-- STAGE 1: START SCREEN -->
         <div id="start-screen">
             <input type="text" id="player-name" placeholder="Skriv ditt artistnamn..." maxlength="15"><br>
-            <button onclick=requestStart()>Starta Spelet</button>
+            <button onclick="requestStart()">Starta Spelet</button>
             <div id="start-error" class="error-msg"></div>
         </div>
 
-        <!-- STEG 2: SPELSKÄRM -->
+        <!-- STAGE 2: SPLAY SCREEN -->
         <div id="game-screen" class="hidden">
             <div class="game-layout">
                 <div>
@@ -183,7 +183,7 @@
                     const data = await wordsRes.json();
                     
                     leftWords = data.left;
-                    // Blanda högerlistan
+                    // Shuffle the right list
                     rightWords = data.right.sort(() => Math.random() - 0.5);
 
                     renderLists();
@@ -206,7 +206,7 @@
             leftContainer.innerHTML = '';
             rightContainer.innerHTML = '';
 
-            // Rendera fasta vänster-ord
+            // Rendera static left-words
             leftWords.forEach(word => {
                 const box = document.createElement('div');
                 box.className = 'item-box static-box';
@@ -214,7 +214,7 @@
                 leftContainer.appendChild(box);
             });
 
-            // Rendera flyttbara höger-ord
+            // Rendera dynamic right-word
             rightWords.forEach((word, index) => {
                 const box = document.createElement('div');
                 box.className = 'item-box';
@@ -227,13 +227,13 @@
 
                 const upBtn = document.createElement('button');
                 upBtn.className = 'nav-btn';
-                upBtn.innerText = '▲';
+                upBtn.innerText = 'Upp';
                 upBtn.onclick = () => moveItem(index, -1);
                 btnWrapper.appendChild(upBtn);
 
                 const downBtn = document.createElement('button');
                 downBtn.className = 'nav-btn';
-                downBtn.innerText = '▼';
+                downBtn.innerText = 'Ner';
                 downBtn.onclick = () => moveItem(index, 1);
                 btnWrapper.appendChild(downBtn);
 
@@ -246,7 +246,7 @@
             const newIndex = index + direction;
             if (newIndex < 0 || newIndex >= rightWords.length) return;
 
-            // Byt plats på elementen säkert
+            // Switch place on elements safetly
             const temp = rightWords[index];
             rightWords[index] = rightWords[newIndex];
             rightWords[newIndex] = temp;
@@ -294,7 +294,9 @@
                     row.innerHTML = `<td><strong>#${index+1}</strong></td><td>${entry.name}</td><td>${entry.time}s</td>`;
                     tbody.appendChild(row);
                 });
-	    } catch (err) {
+	        } catch (err) {
                 console.error(err);
             }
         }
+    </script>
+</body>
