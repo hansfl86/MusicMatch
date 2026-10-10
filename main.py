@@ -11,29 +11,37 @@ app = FastAPI()
 
 # Vår musikaliska databas (Vänster ord -> Rätt höger ord)
 MUSIC_PAIRS = {
+    "Caroline": "I Gotta Feeling - Black Eyed Peas",
     "Lennart": "Twist and Shout - Beatles",
-    "Jennifer": "In Da Club - 50 cent",
+    "Britta": "Oh Julie - Shakin' Stevens",
+    "Kerstin": "Yes Sir, I Can Boogie - Baccara",
+    # "Jan": "Moonlight Serenade - Glen Miller",
+    "Henrik": "Freight Train - Alan Jackson",
+    "Teta": "Nookie - Limp Bizkit",
+    "Anders G": "Basket Case - Green Day",
+    "Morris": "The Motto - Ava Max & Tiesto",
+    "Elton": "Hand up (Bass Boosted) - Dj Usman Bhatti",
+    "Anders S": "Mr Vain - Culture Beast",
+    "Maggie": "Highway Man - Hoffmaestro",
     "Kenneth": "Locomotion - Little Eva",
     "Anci": "Sailing - Rod Stewart",
-    "Rolf": "Paradise by the dashbord light - Meat Loaf",
-    "Anders S": "Mr Vain - Culture Beast",
-    "Elliot": "Eu Vou Vivenciar - Mr Collin & MUCK",
-    "Dainel": "November Rain",
-    "Teta": "Nookie - Limp Bizkit",
-    "Kerstin": "Yes Sir, I Can Boogie - Baccara",
-    "Jan": "Moonlight Serenade - Glen Miller",
-    "Maggie": "Highway Man - Hoffmaestro",
-    "Britta": "Oh Julie - Shakin' Stevens",
-    "Morris": "The Motto - Ava Max & Tiesto",
+    "Jennifer": "In Da Club - 50 cent",
+    "Daniel": "November Rain - XXXXX",
     "Leo B": "Total Eclipse of my Heart - Bonnie Tyler",
-    "Siri": "Lush Life - Zara Larsson",
-    "Anders G": "Basket Case - Green Day",
-    "Lena": "Dragostea Din Tei - O-Zone",
     "Chanelle": "As - Stevie Wonder",
+    "Elliot": "Eu Vou Vivenciar - Mr Collin & MUCK",
+    "Rolf": "Paradise by the Dashbord Light - Meat Loaf",
+    "Siri": "How It's Done - Huntrix",
+    "Alwin": "Cymatics - Nigel Stanford",
+    "Lena": "Dragostea Din Tei - O-Zone",
+    "Lars": "Alright - Supergrass",
     "Per": "Bad Boy - Cascada",
+    "Moa": "Home - Edward Sharpe & The Magnetic Zone",
     "Alva": "All in för Sverige - Brandsta City Släckers",
     "Leo WK": "Hollow - Smash into Pieces",
-    "Lars": "Alright - Supergrass"
+    "Emma": "XXXXX - XXXXX",
+    "Johanna": "What is Love - Haddaway",
+    "Gustaf": "It's a Rainy Day - Ice Mc"
 }
 
 # Håller koll på aktiva spelsessioner baserat på spelarnamn (för tidsmätning)
@@ -93,7 +101,8 @@ def get_words():
             "correct_artist": artist,
             "options": options
         })
-        
+
+    random.shuffle(questions) 
     return {
         "questions": questions
     }
@@ -105,7 +114,7 @@ def submit_game(payload: SubmitRequest):
     if not name: 
         raise HTTPException(status_code=400, detail="Namn saknas")
     leaderboard.append({"name": name[:15], "score": payload.score})
-    return {"success": True}    
+    return {"success": True}
 
 @app.post("/api/start")
 def start_game(payload: StartRequest):
