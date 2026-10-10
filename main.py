@@ -12,10 +12,10 @@ app = FastAPI()
 # Vår musikaliska databas (Vänster ord -> Rätt höger ord)
 MUSIC_PAIRS = {
     "Caroline": "I Gotta Feeling - Black Eyed Peas",
+    "Hans": "The Way I Are - Timbaland & Keri Hilson",
     "Lennart": "Twist and Shout - Beatles",
     "Britta": "Oh Julie - Shakin' Stevens",
     "Kerstin": "Yes Sir, I Can Boogie - Baccara",
-    # "Jan": "Moonlight Serenade - Glen Miller",
     "Henrik": "Freight Train - Alan Jackson",
     "Teta": "Nookie - Limp Bizkit",
     "Anders G": "Basket Case - Green Day",
@@ -26,7 +26,7 @@ MUSIC_PAIRS = {
     "Kenneth": "Locomotion - Little Eva",
     "Anci": "Sailing - Rod Stewart",
     "Jennifer": "In Da Club - 50 cent",
-    "Daniel": "November Rain - XXXXX",
+    "Daniel": "November Rain - Guns N' Roses",
     "Leo B": "Total Eclipse of my Heart - Bonnie Tyler",
     "Chanelle": "As - Stevie Wonder",
     "Elliot": "Eu Vou Vivenciar - Mr Collin & MUCK",
@@ -39,7 +39,7 @@ MUSIC_PAIRS = {
     "Moa": "Home - Edward Sharpe & The Magnetic Zone",
     "Alva": "All in för Sverige - Brandsta City Släckers",
     "Leo WK": "Hollow - Smash into Pieces",
-    "Emma": "XXXXX - XXXXX",
+    "Emma": "Mambo No. 5 - Lou Bega",
     "Johanna": "What is Love - Haddaway",
     "Gustaf": "It's a Rainy Day - Ice Mc"
 }
